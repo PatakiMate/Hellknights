@@ -121,8 +121,9 @@
   <body
     class="bg-black"
     x-data="{
-      state:0,
-      tutorial:1
+      state:2,
+      tutorial:1,
+      search: ''
   }"
   >
     <div class="w-full h-screen bg-[url('images/Background1.png')] bg-cover">
@@ -295,17 +296,22 @@
             >
               <input
                 placeholder="Search serial number..."
+                x-model="search"
                 class="searchbar mt-[20px] w-full md:w-[70%] mb-[20px]"
               />
               <div
                 class="z-[1] grid gird-cols-1 md:grid-cols-3 justify-items-center pb-[40px] gap-5 overflow-y-scroll w-full"
               >
-                <template x-for="i in 10">
+                <template x-for="nft in $store.nfts">
                   <div
+                    x-show="search == '' || nft.name.includes(search)"
                     class="relative flex flex-col justify-between items-center w-[200px] h-[250px] bg-black overflow-hidden rounded-[20px]"
                   >
-                    <h2 class="mt-[14px]">Knight #1</h2>
-                    <img class="" src="images/TestNFT.jpg" alt="" />
+                    <h2 x-text="nft.name" class="mt-[14px]">Knight #1</h2>
+                    <div
+                      x-bind:class="`bg-[url('images/${nft.image}')]`"
+                      class="w-[200px] h-[200px] bg-cover bg-[url('images/TestNFT.jpg')]"
+                    ></div>
                     <div
                       class="transition ease-in-out duration-150 absolute w-[100%] h-[100%] opacity-0 hover:opacity-100 bg-[rgba(0,0,0,0.5)] flex justify-center items-center p-5"
                     >
@@ -380,14 +386,17 @@
             class="relative w-full h-auto xl:h-screen flex flex-col justify-start items-center xl:items-start xl:pl-[140px]"
           >
             <div
+              x-bind:class="`bg-[url('images/illustrations/illustration${$store.illustration}.png')]`"
               class="relative xl:absolute mt-[100px] xl:mt-[0] bg-no-repeat w-[80vw] xl:right-0 h-[400px] xl:h-[calc(100%-100px)] xl:top-[100px] bg-right bg-contain bg-[url('images/illustrations/illustration4.png')]"
             >
               <button
+                x-on:click="$store.illustration++; switchIllustration();"
                 class="absolute right-0 bottom-[50%] image-button xl:mr-4 flex justify-center items-center"
               >
                 <img class="scale-[-1]" src="images/BackArrow.png" alt="" />
               </button>
               <button
+                x-on:click="$store.illustration--; switchIllustration();"
                 class="absolute left-0 xl:left-auto xl:right-[50vh] bottom-[50%] image-button mr-4 flex justify-center items-center"
               >
                 <img class="" src="images/BackArrow.png" alt="" />
@@ -417,6 +426,17 @@
     </div>
   </body>
   <script>
+    const illustrationCount = 4;
+    function switchIllustration() {
+      index = Alpine.store("illustration");
+      if (index > illustrationCount) {
+        index = 1;
+      }
+      if (index < 1) {
+        index = illustrationCount;
+      }
+      Alpine.store("illustration", index);
+    }
     document.addEventListener("alpine:init", () => {
       if (screen.width >= 1280) {
         console.log("expanded");
@@ -424,6 +444,14 @@
       } else {
         Alpine.store("expand", false);
       }
+      Alpine.store("illustration", 1);
+      nfts = [
+        { name: "Knight #1234", image: "TestNFT.jpg" },
+        { name: "Knight #1398", image: "TestNFT.jpg" },
+        { name: "Knight #1278", image: "TestNFT.jpg" },
+        { name: "Knight #9999", image: "TestNFT.jpg" },
+      ];
+      Alpine.store("nfts", nfts);
     });
   </script>
 </html>
